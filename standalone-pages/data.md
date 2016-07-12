@@ -81,13 +81,13 @@ There are three ways to read data in Edward, following the
 
 1. __Preloaded data.__ A constant or variable in the TensorFlow graph holds all the data.
 
-   Done for 1 and 2 above.
+   Done for 1 and 2 above. Pass in the data as a dictionary of NumPy arrays. Internally, we will store them in TensorFlow variables to prevent copying data more than twice in memory. Batch training is available internally via `tf.train.slice_input_producer` and `tf.train.batch`. (As an example, see `examples/mixture_gaussian.py`.)
 2. __Feeding.__ Manual code provides the data when running each step of inference.
 
-   Done for 3 above.
+   Done for 3 above. Pass in the data as a dictionary of TensorFlow placeholders. The user must manually feed the placeholders at each step of inference. (As an example, see `examples/mixture_density_network.py`.)
 3. __Reading from files.__ An input pipeline reads the data from files at the beginning of a TensorFlow graph.
 
-   Done for 3 above.
+   Done for 3 above. Pass in the data as a dictionary of TensorFlow tensors, where the tensors are the output of data readers. (No current example is available; TODO mnist.)
 
 ## Internal
 
