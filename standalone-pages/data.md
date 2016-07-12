@@ -2,7 +2,7 @@ Data in Edward is given as a dictionary. It is usually comprised of
 strings binded to NumPy arrays such as `'x'` assigned to
 `np.array([0.23512, 13.2])`.  Each modeling language interacts with
 the data in a slightly different way.
-+ __TensorFlow.__ The dictionary carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow placeholder.
++ __TensorFlow.__ The dictionary carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
 ```python
 class BetaBernoulli:
     def log_prob(self, xs, zs):
@@ -14,7 +14,7 @@ class BetaBernoulli:
 model = BetaBernoulli()
 data = {'x': np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}
 ```
-+ __Python.__ The dictionary carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow placeholder.
++ __Python.__ The dictionary carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
 ```python
 class BetaBernoulli(PythonModel):
     def _py_log_prob(self, xs, zs):
@@ -30,7 +30,7 @@ class BetaBernoulli(PythonModel):
 model = BetaBernoulli()
 data = {'x': np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}
 ```
-+ __PyMC3.__ The dictionary binds Theano shared variables, which are used to mark the observed PyMC3 random variables, to their realizations. Key is a Theano shared variable. Value is a NumPy array or TensorFlow placeholder.
++ __PyMC3.__ The dictionary binds Theano shared variables, which are used to mark the observed PyMC3 random variables, to their realizations. Key is a Theano shared variable. Value is a NumPy array or TensorFlow tensor.
 ```python
 x_obs = theano.shared(np.zeros(1))
 with pm.Model() as pm_model:
@@ -60,20 +60,6 @@ model = ed.StanModel(model_code=model_code)
 data = {'N': 10, 'y': [0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}
 ```
 
-## Training Models with Data
-
-How do we use the data during training? In general there are three use cases:
-
-1. Initialize training with full data. Loop over all data per iteration. (supported for all languages)
-
-   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run()`. See `examples/beta_bernoulli_tf.py` as an example.
-2. Initialize training with full data. Loop over a batch per iteration. (scale inference in terms of computational complexity; supported for all but Stan)
-
-   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run(n_data=5)`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. See `examples/mixture_gaussian.py` as an example.
-3. Initialize training with no data. Manually pass in a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
-
-  Define your data dictionary by using `tf.placeholder()`'s. Pass in the data via `inference = ed.MFVI(model, variational, data)`. Initialize via `inference.initialize()`. Then in a loop run `sess.run(inference.train, feed_dict={...})` where in the `feed_dict` you pass in the values for the `tf.placeholder()`'s. See `examples/mixture_density_network.py` as an example.
-
 ## Reading Data in Edward
 
 There are three ways to read data in Edward, following the
@@ -89,8 +75,16 @@ There are three ways to read data in Edward, following the
 
    For inference, pass in the data as a dictionary of TensorFlow tensors, where the tensors are the output of data readers. (No current example is available.)
 
-## Internal
+## Training Models with Data
 
-What kind of black magic is done internally to get this to work? All methods—model methods, inference methods, criticism methods—work with the data dictionary. For inference, we internally use a data abstraction which you can think of now as a data generator. This data generator simply outputs batches of data during training. The typical Edward user will not have to learn about it (the typical Edward inference researcher would).
+How do we use the data during training? In general there are three use cases:
 
-__Data Generators.__
+1. Initialize training with full data. Loop over all data per iteration. (supported for all languages)
+
+   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run()`. See `examples/beta_bernoulli_tf.py` as an example.
+2. Initialize training with full data. Loop over a batch per iteration. (scale inference in terms of computational complexity; supported for all but Stan)
+
+   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run(n_data=5)`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. See `examples/mixture_gaussian.py` as an example.
+3. Initialize training with no data. Manually pass in a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
+
+  Define your data dictionary by using `tf.placeholder()`'s. Pass in the data via `inference = ed.MFVI(model, variational, data)`. Initialize via `inference.initialize()`. Then in a loop run `sess.run(inference.train, feed_dict={...})` where in the `feed_dict` you pass in the values for the `tf.placeholder()`'s. See `examples/mixture_density_network.py` as an example.
