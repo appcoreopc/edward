@@ -80,13 +80,13 @@ There are three ways to read data in Edward, following the
 
 How do we use the data during training? In general there are three use cases:
 
-1. Initialize training with full data. Train over full data per step. (supported for all languages)
+1. Train over the full data per step. (supported for all languages)
 
-   Use preloaded data.
-2. Initialize training with full data. Train over a batch per step. (scale inference in terms of computational complexity; supported for all but Stan)
+   Follow the setting of preloaded data.
+2. Train over a batch per step when the full data fits in memory. (scale inference in terms of computational complexity; supported for all but Stan)
 
 
-   Use preloaded data. Specify the batch size with `n_data` in `Inference`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary.
-3. Initialize training with batch data tensors. Train over a batch per step. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
+   Follow the setting of preloaded data. Specify the batch size with `n_data` in `Inference`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. Alternatively, follow the setting of feeding. Manually deal with the batch behavior at each training step.
+3. Train over batches per step when the full data does not fit in memory. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
 
-   Use feeding or reading from files. The batch behavior is user-defined, either through feeding or through the data tensors outputted by any data readers.
+   Follow the setting of reading from files. Alternatively, follow the setting of feeding, and use a generator to create and destroy NumPy arrays on the fly for feeding the placeholders.
