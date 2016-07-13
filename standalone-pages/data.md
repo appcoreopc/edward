@@ -3,7 +3,7 @@ comprised of strings binded to NumPy arrays such as a key `'x'` with
 value `np.array([0.23512, 13.2])`. Some modeling languages require the data
 to have a different key or value type. We detail each below.
 
-+ __TensorFlow.__ The data carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
++ __TensorFlow.__ The data carries whatever keys and values the user accesses in the user-defined model. Key is a string. Value is a NumPy array or TensorFlow tensor.
 ```python
 class BetaBernoulli:
     def log_prob(self, xs, zs):
@@ -15,7 +15,7 @@ class BetaBernoulli:
 model = BetaBernoulli()
 data = {'x': np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}
 ```
-+ __Python.__ The data carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
++ __Python.__ The data carries whatever keys and values the user accesses in the user-defined model. Key is a string. Value is a NumPy array or TensorFlow tensor.
 ```python
 class BetaBernoulli(PythonModel):
     def _py_log_prob(self, xs, zs):
