@@ -1,8 +1,9 @@
-Data in Edward is given as a dictionary. It is usually comprised of
-strings binded to NumPy arrays such as `'x'` assigned to
-`np.array([0.23512, 13.2])`.  Each modeling language interacts with
-the data in a slightly different way.
-+ __TensorFlow.__ The dictionary carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
+Data in Edward is stored as a Python dictionary. It is usually
+comprised of strings binded to NumPy arrays such as a key `'x'` with
+value `np.array([0.23512, 13.2])`. Some modeling languages require the data
+to have a different key or value type. We detail each below.
+
++ __TensorFlow.__ The data carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
 ```python
 class BetaBernoulli:
     def log_prob(self, xs, zs):
@@ -14,7 +15,7 @@ class BetaBernoulli:
 model = BetaBernoulli()
 data = {'x': np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}
 ```
-+ __Python.__ The dictionary carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
++ __Python.__ The data carries whatever keys and values the user accesses in `log_prob()` (or in the other user-defined methods). Key is a string. Value is a NumPy array or TensorFlow tensor.
 ```python
 class BetaBernoulli(PythonModel):
     def _py_log_prob(self, xs, zs):
@@ -30,7 +31,7 @@ class BetaBernoulli(PythonModel):
 model = BetaBernoulli()
 data = {'x': np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}
 ```
-+ __PyMC3.__ The dictionary binds Theano shared variables, which are used to mark the observed PyMC3 random variables, to their realizations. Key is a Theano shared variable. Value is a NumPy array or TensorFlow tensor.
++ __PyMC3.__ The data binds Theano shared variables, which are used to mark the observed PyMC3 random variables, to their realizations. Key is a Theano shared variable. Value is a NumPy array or TensorFlow tensor.
 ```python
 x_obs = theano.shared(np.zeros(1))
 with pm.Model() as pm_model:
@@ -40,7 +41,7 @@ with pm.Model() as pm_model:
 model = PyMC3Model(pm_model)
 data = {x_obs: np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}
 ```
-+ __Stan.__ It's the usual dictionary according to the Stan program's data block. Key is a string. Value is whatever type is used for the data block.
++ __Stan.__ The data is according to the Stan program's data block. Key is a string. Value is whatever type is used for the data block.
 ```python
 model_code = """
     data {
@@ -68,9 +69,15 @@ There are three ways to read data in Edward, following the
 1. __Preloaded data.__ A constant or variable in the TensorFlow graph holds all the data.
 
    For inference, pass in the data as a dictionary of NumPy arrays. Internally, we will store them in TensorFlow variables to prevent copying data more than once in memory. Batch training is available internally via `tf.train.slice_input_producer` and `tf.train.batch`. (As an example, see `examples/mixture_gaussian.py`.)
+   
+   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run()`. See `examples/beta_bernoulli_tf.py` as an example.
+   
+      Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run(n_data=5)`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. See `examples/mixture_gaussian.py` as an example.
 2. __Feeding.__ Manual code provides the data when running each step of inference.
 
    For inference, pass in the data as a dictionary of TensorFlow placeholders. The user must manually feed the placeholders at each step of inference. (As an example, see `examples/mixture_density_network.py` or `examples/convolutional_vae.py`.)
+   
+     Define your data dictionary by using `tf.placeholder()`'s. Pass in the data via `inference = ed.MFVI(model, variational, data)`. Initialize via `inference.initialize()`. Then in a loop run `sess.run(inference.train, feed_dict={...})` where in the `feed_dict` you pass in the values for the `tf.placeholder()`'s. See `examples/mixture_density_network.py` as an example.
 3. __Reading from files.__ An input pipeline reads the data from files at the beginning of a TensorFlow graph.
 
    For inference, pass in the data as a dictionary of TensorFlow tensors, where the tensors are the output of data readers. (No current example is available.)
@@ -81,10 +88,11 @@ How do we use the data during training? In general there are three use cases:
 
 1. Initialize training with full data. Loop over all data per iteration. (supported for all languages)
 
-   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run()`. See `examples/beta_bernoulli_tf.py` as an example.
+   Done with preloaded data.
 2. Initialize training with full data. Loop over a batch per iteration. (scale inference in terms of computational complexity; supported for all but Stan)
 
-   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run(n_data=5)`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. See `examples/mixture_gaussian.py` as an example.
+
+   Done with preloaded data.
 3. Initialize training with no data. Manually pass in a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
 
-  Define your data dictionary by using `tf.placeholder()`'s. Pass in the data via `inference = ed.MFVI(model, variational, data)`. Initialize via `inference.initialize()`. Then in a loop run `sess.run(inference.train, feed_dict={...})` where in the `feed_dict` you pass in the values for the `tf.placeholder()`'s. See `examples/mixture_density_network.py` as an example.
+   Done with feeding and reading from files.
