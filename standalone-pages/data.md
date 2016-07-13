@@ -69,15 +69,9 @@ There are three ways to read data in Edward, following the
 1. __Preloaded data.__ A constant or variable in the TensorFlow graph holds all the data.
 
    For inference, pass in the data as a dictionary of NumPy arrays. Internally, we will store them in TensorFlow variables to prevent copying data more than once in memory. Batch training is available internally via `tf.train.slice_input_producer` and `tf.train.batch`. (As an example, see `examples/mixture_gaussian.py`.)
-   
-   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run()`. See `examples/beta_bernoulli_tf.py` as an example.
-   
-   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run(n_data=5)`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. See `examples/mixture_gaussian.py` as an example.
 2. __Feeding.__ Manual code provides the data when running each step of inference.
 
-   For inference, pass in the data as a dictionary of TensorFlow placeholders. The user must manually feed the placeholders at each step of inference. (As an example, see `examples/mixture_density_network.py` or `examples/convolutional_vae.py`.)
-   
-   Define your data dictionary by using `tf.placeholder()`'s. Pass in the data via `inference = ed.MFVI(model, variational, data)`. Initialize via `inference.initialize()`. Then in a loop run `sess.run(inference.train, feed_dict={...})` where in the `feed_dict` you pass in the values for the `tf.placeholder()`'s. See `examples/mixture_density_network.py` as an example.
+   For inference, pass in the data as a dictionary of TensorFlow placeholders. The user must manually feed the placeholders at each step of inference: initialize via `inference.initialize()`; then in a loop call `sess.run(inference.train, feed_dict={...})` where in `feed_dict` you pass in the values for the `tf.placeholder`'s. (As an example, see `examples/mixture_density_network.py` or `examples/convolutional_vae.py`.)
 3. __Reading from files.__ An input pipeline reads the data from files at the beginning of a TensorFlow graph.
 
    For inference, pass in the data as a dictionary of TensorFlow tensors, where the tensors are the output of data readers. (No current example is available.)
@@ -86,13 +80,13 @@ There are three ways to read data in Edward, following the
 
 How do we use the data during training? In general there are three use cases:
 
-1. Initialize training with full data. Train over all data per iteration. (supported for all languages)
+1. Initialize training with full data. Train over full data per step. (supported for all languages)
 
    Use preloaded data.
-2. Initialize training with full data. Train over a batch per iteration. (scale inference in terms of computational complexity; supported for all but Stan)
+2. Initialize training with full data. Train over a batch per step. (scale inference in terms of computational complexity; supported for all but Stan)
 
 
-   Use preloaded data.
-3. Initialize training with batch data tensors. Train over a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
+   Use preloaded data. Specify the batch size with `n_data` in `Inference`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary.
+3. Initialize training with batch data tensors. Train over a batch per step. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
 
-   Use feeding or reading from files.
+   Use feeding or reading from files. The batch behavior is user-defined, either through feeding or through the data tensors outputted by any data readers.
