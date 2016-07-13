@@ -72,7 +72,7 @@ There are three ways to read data in Edward, following the
    For inference, pass in the data as a dictionary of NumPy arrays. Internally, we will store them in TensorFlow variables to prevent copying data more than once in memory. Batch training is available internally via calling `tf.train.slice_input_producer` and `tf.train.batch`. (As an example, see `examples/mixture_gaussian.py`.)
 2. __Feeding.__ Manual code provides the data when running each step of inference.
 
-   This setting provides the most fine-grained control and is a common use case in TensorFlow for experimentation.
+   This setting provides the most fine-grained control which is useful for experimentation.
    For inference, pass in the data as a dictionary of TensorFlow placeholders. The user must manually feed the placeholders at each step of inference: initialize via `inference.initialize()`; then in a loop call `sess.run(inference.train, feed_dict={...})` where in `feed_dict` you pass in the values for the `tf.placeholder`'s. (As an example, see `examples/mixture_density_network.py` or `examples/convolutional_vae.py`.)
 3. __Reading from files.__ An input pipeline reads the data from files at the beginning of a TensorFlow graph.
 
