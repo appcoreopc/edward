@@ -86,13 +86,13 @@ There are three ways to read data in Edward, following the
 
 How do we use the data during training? In general there are three use cases:
 
-1. Initialize training with full data. Loop over all data per iteration. (supported for all languages)
+1. Initialize training with full data. Train over all data per iteration. (supported for all languages)
 
    Use preloaded data.
-2. Initialize training with full data. Loop over a batch per iteration. (scale inference in terms of computational complexity; supported for all but Stan)
+2. Initialize training with full data. Train over a batch per iteration. (scale inference in terms of computational complexity; supported for all but Stan)
 
 
    Use preloaded data.
-3. Initialize training with no data. Manually pass in a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
+3. Initialize training with no data. Train over a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
 
    Use feeding or reading from files.
