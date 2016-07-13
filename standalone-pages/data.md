@@ -93,6 +93,6 @@ How do we use the data during training? In general there are three use cases:
 
 
    Use preloaded data.
-3. Initialize training with data tensors. Train over a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
+3. Initialize training with batch data tensors. Train over a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
 
    Use feeding or reading from files.
