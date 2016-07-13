@@ -72,12 +72,12 @@ There are three ways to read data in Edward, following the
    
    Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run()`. See `examples/beta_bernoulli_tf.py` as an example.
    
-      Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run(n_data=5)`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. See `examples/mixture_gaussian.py` as an example.
+   Pass in the data via `inference = ed.MFVI(model, variational, data)`, then call `inference.run(n_data=5)`. By default, we will subsample by slicing along the first dimension of every data structure in the data dictionary. See `examples/mixture_gaussian.py` as an example.
 2. __Feeding.__ Manual code provides the data when running each step of inference.
 
    For inference, pass in the data as a dictionary of TensorFlow placeholders. The user must manually feed the placeholders at each step of inference. (As an example, see `examples/mixture_density_network.py` or `examples/convolutional_vae.py`.)
    
-     Define your data dictionary by using `tf.placeholder()`'s. Pass in the data via `inference = ed.MFVI(model, variational, data)`. Initialize via `inference.initialize()`. Then in a loop run `sess.run(inference.train, feed_dict={...})` where in the `feed_dict` you pass in the values for the `tf.placeholder()`'s. See `examples/mixture_density_network.py` as an example.
+   Define your data dictionary by using `tf.placeholder()`'s. Pass in the data via `inference = ed.MFVI(model, variational, data)`. Initialize via `inference.initialize()`. Then in a loop run `sess.run(inference.train, feed_dict={...})` where in the `feed_dict` you pass in the values for the `tf.placeholder()`'s. See `examples/mixture_density_network.py` as an example.
 3. __Reading from files.__ An input pipeline reads the data from files at the beginning of a TensorFlow graph.
 
    For inference, pass in the data as a dictionary of TensorFlow tensors, where the tensors are the output of data readers. (No current example is available.)
@@ -88,11 +88,11 @@ How do we use the data during training? In general there are three use cases:
 
 1. Initialize training with full data. Loop over all data per iteration. (supported for all languages)
 
-   Done with preloaded data.
+   Use preloaded data.
 2. Initialize training with full data. Loop over a batch per iteration. (scale inference in terms of computational complexity; supported for all but Stan)
 
 
-   Done with preloaded data.
+   Use preloaded data.
 3. Initialize training with no data. Manually pass in a batch per iteration. (scale inference in terms of computational complexity and memory complexity; supported for all but Stan)
 
-   Done with feeding and reading from files.
+   Use feeding or reading from files.
